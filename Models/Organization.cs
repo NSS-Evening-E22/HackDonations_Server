@@ -12,7 +12,7 @@
 
         public int UserId { get; set; }
 
-        public List<string> tagList { get; set; }
+        public List<Tag> TagList { get; set; }
 
 
     }
