@@ -1,14 +1,12 @@
-using System.Text.Json.Serialization;
-
 namespace HackDonations_Server.Models
 {
     public class Tag
     {
-        public int id { get; set; }
+        public int Id { get; set; }
 
-        public string name { get; set; }
+        public string Name { get; set; }
 
-        public List<Tag> tagList { get; set; }
+        public List<Tag> TagList { get; set; }
 
     }
 }
