@@ -1,18 +1,20 @@
-﻿namespace HackDonations_Server.Models
+using System.Text.Json.Serialization;
+
+namespace HackDonations_Server.Models
 {
     public class User
     {
-        public int Id { get; set; }
+        public int id { get; set; }
 
-        public string Name { get; set; }
+        public string name { get; set; }
 
-        public string Email { get; set; }
+        public string email { get; set; }
 
-        public string Bio { get; set; }
+        public string bio { get; set; }
 
-        public string PhoneNumber { get; set; }
+        public string phoneNumber { get; set; }
 
-        public string ImageUrl { get; set; }
+        public string imageUrl { get; set; }
 
 
     }
