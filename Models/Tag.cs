@@ -6,7 +6,7 @@
 
         public string Name { get; set; }
 
-        public List<string> OrganizationList { get; set; }
+        public List<Tag> TagList { get; set; }
 
     }
 }
