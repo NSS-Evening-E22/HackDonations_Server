@@ -13,6 +13,8 @@ namespace HackDonations_Server.Models
         public string PhoneNumber { get; set; }
 
         public string ImageUrl { get; set; }
+
+        public string Uid { get; set; }
         
     }
 }
