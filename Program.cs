@@ -272,7 +272,7 @@ app.MapGet("/donations/{DonId}", (HackDonationsDbContext db, int DonId) =>
     return db.Donations.Where(s => s.Id == DonId);
 });
 
-// Add Tag to Organization
+// Add Donation to Organization
 app.MapPost("/organizations/{OrgId}/donations", (HackDonationsDbContext db, int OrgId, Donation payload) =>
 {
     // Retrieve object reference of Organizations in order to manipulate (Not a query result)
@@ -310,8 +310,8 @@ app.MapGet("/organizations/{OrgId}/donationlist", (HackDonationsDbContext db, in
     }
 });
 
-// Delete Tags from Organization
-app.MapDelete("/organizations/{OrgId}/{DonId}/remove/Donation", (HackDonationsDbContext db, int OrgId, int DonId) =>
+// Delete Donations from Organization
+app.MapDelete("/organizations/{OrgId}/{DonId}/remove/donation", (HackDonationsDbContext db, int OrgId, int DonId) =>
 {
     try
     {
@@ -385,7 +385,5 @@ app.MapDelete("/comments/remove/{cId}", (HackDonationsDbContext db, int cId) => 
 
 });
 
-
-#endregion
 
 app.Run();
