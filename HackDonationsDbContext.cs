@@ -1,6 +1,7 @@
 ﻿using HackDonations_Server.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using EFCore.NamingConventions;
 
 namespace HackDonations_Server
 {
@@ -39,7 +40,10 @@ namespace HackDonations_Server
 
            });
         }
-
-    };
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    => optionsBuilder
+            .UseNpgsql()
+            .UseSnakeCaseNamingConvention();
+    }
 
 };
