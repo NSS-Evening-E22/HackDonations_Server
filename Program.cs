@@ -108,6 +108,67 @@ app.MapDelete("/organizations/remove/{OrgId}", (HackDonationsDbContext db, int O
 
 });
 
+// Add Tag to Organization
+app.MapPost("/organizations/{OrgId}/list", (HackDonationsDbContext db, int OrgId, Tag payload) =>
+{
+    // Retrieve object reference of Organizations in order to manipulate (Not a query result)
+    var organi = db.Organizations
+    .Where(o => o.Id == OrgId)
+    .Include(o => o.TagList)
+    .FirstOrDefault();
+    if (organi == null)
+    {
+        return Results.NotFound("Organization not found.");
+    }
+    organi.TagList.Add(payload);
+    db.SaveChanges();
+    return Results.Ok(organi);
+});
 
+// Delete Tags from Organization
+app.MapDelete("/organizations/{OrgId}/list/{TagId}/remove", (HackDonationsDbContext db, int OrgId, int TagId) =>
+{
+    try
+    {
+        // Include should come first before selecting
+        var SingleOrg = db.Organizations
+            .Include(Org => Org.TagList)
+            .FirstOrDefault(x => x.Id == OrgId);
+        if (SingleOrg == null)
+        {
+            return Results.NotFound("Sorry for the inconvenience! This organization does not exist.");
+        }
+        // The reason why it didn't work before is because I didnt have a method after TagList
+        var SelectedTagList = SingleOrg.TagList.FirstOrDefault(t => t.Id == TagId);
+        SingleOrg.TagList.Remove(SelectedTagList);
+        db.SaveChanges();
+        return Results.Ok(SingleOrg.TagList);
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(ex.Message);
+    }
+});
+
+// Get Tags from Organization
+app.MapGet("/organizations/{OrgId}/tags", (HackDonationsDbContext db, int OrgId) =>
+{
+    try
+    {
+        var SingleOrg = db.Organizations
+            .Where(db => db.Id == OrgId)
+            .Include(Org => Org.TagList)
+            .ToList();
+        if (SingleOrg == null)
+        {
+            return Results.NotFound("Sorry for the inconvenience! This Organization does not exist.");
+        }
+        return Results.Ok(SingleOrg);
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(ex.Message);
+    }
+});
 
 app.Run();
