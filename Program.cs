@@ -157,6 +157,31 @@ app.MapGet("/tags", (HackDonationsDbContext db) => {
 
 });
 
+// Delete Tags from Organization
+app.MapDelete("/organizations/{OrgId}/list/{TagId}/remove", (HackDonationsDbContext db, int OrgId, int TagId) =>
+{
+    try
+    {
+        // Include should come first before selecting
+        var SingleOrg = db.Organizations
+            .Include(Org => Org.TagList)
+            .FirstOrDefault(x => x.Id == OrgId);
+        if (SingleOrg == null)
+        {
+            return Results.NotFound("Sorry for the inconvenience! This organization does not exist.");
+        }
+        // The reason why it didn't work before is because I didnt have a method after TagList
+        var SelectedTagList = SingleOrg.TagList.FirstOrDefault(t => t.Id == TagId);
+        SingleOrg.TagList.Remove(SelectedTagList);
+        db.SaveChanges();
+        return Results.Ok(SingleOrg.TagList);
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(ex.Message);
+    }
+});
+
 // Add Tag to Organization
 app.MapPost("/organizations/{OrgId}/list", (HackDonationsDbContext db, int OrgId, Tag payload) =>
 {
