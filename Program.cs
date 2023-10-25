@@ -362,7 +362,28 @@ app.MapPost("/comments/new", (HackDonationsDbContext db, Comment payload) => {
 
 });
 
+// Update A Comment
+app.MapPut("/comments/update/{cId}", (HackDonationsDbContext db, int cId, Comment payload) => {
 
+    Comment SelectedCom = db.Comments.FirstOrDefault(o => o.Id == cId);
+
+    SelectedCom.Description = payload.Description;
+
+    db.SaveChanges();
+    return Results.Ok("The existing comment has been updated.");
+
+});
+
+// Delete A Comment
+app.MapDelete("/comments/remove/{cId}", (HackDonationsDbContext db, int cId) => {
+
+    Comment SelectedCom = db.Comments.FirstOrDefault(o => o.Id == cId);
+
+    db.Comments.Remove(SelectedCom);
+    db.SaveChanges();
+    return Results.Ok("Comment has been removed.");
+
+});
 
 
 #endregion
