@@ -14,6 +14,36 @@ namespace HackDonations_Server.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "comments",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    user_id = table.Column<int>(type: "integer", nullable: false),
+                    description = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_comments", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "donations",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    user_id = table.Column<int>(type: "integer", nullable: false),
+                    payment_type = table.Column<string>(type: "text", nullable: false),
+                    donation_amount = table.Column<int>(type: "integer", nullable: false),
+                    comment = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_donations", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "organizations",
                 columns: table => new
                 {
@@ -58,6 +88,54 @@ namespace HackDonations_Server.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_users", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "comment_organization",
+                columns: table => new
+                {
+                    comment_list_id = table.Column<int>(type: "integer", nullable: false),
+                    organization_list_id = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_comment_organization", x => new { x.comment_list_id, x.organization_list_id });
+                    table.ForeignKey(
+                        name: "fk_comment_organization_comments_comment_list_id",
+                        column: x => x.comment_list_id,
+                        principalTable: "comments",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_comment_organization_organizations_organization_list_id",
+                        column: x => x.organization_list_id,
+                        principalTable: "organizations",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "donation_organization",
+                columns: table => new
+                {
+                    donation_list_id = table.Column<int>(type: "integer", nullable: false),
+                    organization_list_id = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_donation_organization", x => new { x.donation_list_id, x.organization_list_id });
+                    table.ForeignKey(
+                        name: "fk_donation_organization_donations_donation_list_id",
+                        column: x => x.donation_list_id,
+                        principalTable: "donations",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_donation_organization_organizations_organization_list_id",
+                        column: x => x.organization_list_id,
+                        principalTable: "organizations",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -114,6 +192,16 @@ namespace HackDonations_Server.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "ix_comment_organization_organization_list_id",
+                table: "comment_organization",
+                column: "organization_list_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_donation_organization_organization_list_id",
+                table: "donation_organization",
+                column: "organization_list_id");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_organization_tag_tag_list_id",
                 table: "organization_tag",
                 column: "tag_list_id");
@@ -123,10 +211,22 @@ namespace HackDonations_Server.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "comment_organization");
+
+            migrationBuilder.DropTable(
+                name: "donation_organization");
+
+            migrationBuilder.DropTable(
                 name: "organization_tag");
 
             migrationBuilder.DropTable(
                 name: "users");
+
+            migrationBuilder.DropTable(
+                name: "comments");
+
+            migrationBuilder.DropTable(
+                name: "donations");
 
             migrationBuilder.DropTable(
                 name: "organizations");
