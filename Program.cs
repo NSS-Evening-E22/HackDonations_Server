@@ -69,6 +69,47 @@ app.MapGet("/organization/{OrgId}", (HackDonationsDbContext db, int OrgId) => {
 
 });
 
+#region User API
+
+// Register New User
+app.MapPost("/register", (HackDonationsDbContext db, User payload) =>
+{
+    User NewUser = new User()
+    {
+        Name = payload.Name,
+        Bio = payload.Bio,
+        Email = payload.Email,
+        PhoneNumber = payload.PhoneNumber,
+        ImageUrl = payload.ImageUrl,
+        Uid = payload.Uid,
+    };
+    db.Users.Add(NewUser);
+    db.SaveChanges();
+    return Results.Ok(NewUser.Name);
+});
+
+// Edit User
+app.MapPut("/users/update/{userId}", (HackDonationsDbContext db, int userId, User NewUser) =>
+{
+    User SelectedUser = db.Users.FirstOrDefault(x => x.Id == userId);
+    if (SelectedUser == null)
+    {
+        return Results.NotFound("This User is not found in the database. Please Try again!");
+    }
+
+    SelectedUser.Name = NewUser.Name;
+    SelectedUser.Bio = NewUser.Bio;
+    SelectedUser.Email = NewUser.Email;
+    SelectedUser.PhoneNumber = NewUser.PhoneNumber;
+    SelectedUser.ImageUrl = NewUser.ImageUrl;
+    db.SaveChanges();
+    return Results.Created("/users/update/{uid}", SelectedUser);
+
+});
+
+#endregion
+
+#region Organization API
 // Create An Organization
 app.MapPost("/organizations/new", (HackDonationsDbContext db, Organization payload) => {
 
@@ -107,7 +148,14 @@ app.MapDelete("/organizations/remove/{OrgId}", (HackDonationsDbContext db, int O
     return Results.Ok("Organization has been removed.");
 
 });
+#endregion
 
+// View All Tags
+app.MapGet("/tags", (HackDonationsDbContext db) => {
+
+    return db.Tags.ToList();
+
+});
 
 
 app.Run();
