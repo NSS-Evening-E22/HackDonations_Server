@@ -6,7 +6,7 @@ namespace HackDonations_Server.Models
 
         public string Name { get; set; }
 
-        public List<Tag> TagList { get; set; }
+        public List<Organization> OrganizationList { get; set; }
 
     }
 }
