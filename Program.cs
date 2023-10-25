@@ -55,20 +55,6 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
-// View All Organizations
-app.MapGet("/organizations", (HackDonationsDbContext db) => {
-
-   return db.Organizations.ToList();
-
-});
-
-// View An Organization Page
-app.MapGet("/organization/{OrgId}", (HackDonationsDbContext db, int OrgId) => {
-
-    return db.Organizations.FirstOrDefault(o => o.Id == OrgId);
-
-});
-
 #region User API
 
 // Register New User
@@ -121,9 +107,31 @@ app.MapGet("/users/{uid}", (HackDonationsDbContext db, string uid) =>
     }
 });
 
+// View All Users
+app.MapGet("/users", (HackDonationsDbContext db) => {
+
+    return db.Users.ToList();
+
+});
+
+
 #endregion
 
 #region Organization API
+// View All Organizations
+app.MapGet("/organizations", (HackDonationsDbContext db) => {
+
+    return db.Organizations.ToList();
+
+});
+
+// View An Organization Page
+app.MapGet("/organization/{OrgId}", (HackDonationsDbContext db, int OrgId) => {
+
+    return db.Organizations.FirstOrDefault(o => o.Id == OrgId);
+
+});
+
 // Create An Organization
 app.MapPost("/organizations/new", (HackDonationsDbContext db, Organization payload) => {
 
