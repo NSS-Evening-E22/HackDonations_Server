@@ -14,7 +14,7 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(
                       policy =>
                       {
-                          policy.WithOrigins("https://localhost:7284",
+                          policy.WithOrigins("https://localhost:7183",
                                               "http://localhost:3000")
                                                .AllowAnyHeader()
                                                .AllowAnyMethod();
@@ -55,6 +55,59 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
-// Here
+// View All Organizations
+app.MapGet("/organizations", (HackDonationsDbContext db) => {
+
+   return db.Organizations.ToList();
+
+});
+
+// View An Organization Page
+app.MapGet("/organization/{OrgId}", (HackDonationsDbContext db, int OrgId) => {
+
+    return db.Organizations.FirstOrDefault(o => o.Id == OrgId);
+
+});
+
+// Create An Organization
+app.MapPost("/organizations/new", (HackDonationsDbContext db, Organization payload) => {
+
+    db.Organizations.Add(payload);
+    db.SaveChanges();
+    return Results.Created("/organizations/new", payload);
+
+});
+
+// Update An Organization Page
+app.MapPut("/organizations/update/{OrgId}", (HackDonationsDbContext db, int OrgId, Organization payload) => {
+
+    Organization SelectedOrg = db.Organizations.FirstOrDefault(o => o.Id == OrgId);
+
+    if (SelectedOrg == null)
+    {
+        return Results.NotFound("Organization was not found!");
+    }
+
+    SelectedOrg.Title = payload.Title;
+    SelectedOrg.Description = payload.Description;
+    SelectedOrg.ImageUrl = payload.ImageUrl;
+
+    db.SaveChanges();
+    return Results.Ok("The existing Organization has been updated.");
+
+});
+
+// Delete An Organization
+app.MapDelete("/organizations/remove/{OrgId}", (HackDonationsDbContext db, int OrgId) => {
+
+    Organization SelectedOrg = db.Organizations.FirstOrDefault(o => o.Id == OrgId);
+
+    db.Organizations.Remove(SelectedOrg);
+    db.SaveChanges();
+    return Results.Ok("Organization has been removed.");
+
+});
+
+
 
 app.Run();

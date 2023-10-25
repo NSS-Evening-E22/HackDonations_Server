@@ -1,4 +1,8 @@
-﻿namespace HackDonations_Server.Models
+﻿using HackDonations_Server.Models;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+
+namespace HackDonations_Server.Models
 {
     public class Organization
     {

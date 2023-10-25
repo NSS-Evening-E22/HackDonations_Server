@@ -14,79 +14,79 @@ namespace HackDonations_Server.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Organizations",
+                name: "organizations",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Title = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false),
-                    ImageUrl = table.Column<string>(type: "text", nullable: false),
-                    UserId = table.Column<int>(type: "integer", nullable: false)
+                    title = table.Column<string>(type: "text", nullable: false),
+                    description = table.Column<string>(type: "text", nullable: false),
+                    image_url = table.Column<string>(type: "text", nullable: false),
+                    user_id = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Organizations", x => x.Id);
+                    table.PrimaryKey("pk_organizations", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Tags",
+                name: "tags",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false)
+                    name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Tags", x => x.Id);
+                    table.PrimaryKey("pk_tags", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Users",
+                name: "users",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Email = table.Column<string>(type: "text", nullable: false),
-                    Bio = table.Column<string>(type: "text", nullable: false),
-                    PhoneNumber = table.Column<string>(type: "text", nullable: false),
-                    ImageUrl = table.Column<string>(type: "text", nullable: false),
-                    Uid = table.Column<string>(type: "text", nullable: false)
+                    name = table.Column<string>(type: "text", nullable: false),
+                    email = table.Column<string>(type: "text", nullable: false),
+                    bio = table.Column<string>(type: "text", nullable: false),
+                    phone_number = table.Column<string>(type: "text", nullable: false),
+                    image_url = table.Column<string>(type: "text", nullable: false),
+                    uid = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Users", x => x.Id);
+                    table.PrimaryKey("pk_users", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "OrganizationTag",
+                name: "organization_tag",
                 columns: table => new
                 {
-                    OrganizationListId = table.Column<int>(type: "integer", nullable: false),
-                    TagListId = table.Column<int>(type: "integer", nullable: false)
+                    organization_list_id = table.Column<int>(type: "integer", nullable: false),
+                    tag_list_id = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OrganizationTag", x => new { x.OrganizationListId, x.TagListId });
+                    table.PrimaryKey("pk_organization_tag", x => new { x.organization_list_id, x.tag_list_id });
                     table.ForeignKey(
-                        name: "FK_OrganizationTag_Organizations_OrganizationListId",
-                        column: x => x.OrganizationListId,
-                        principalTable: "Organizations",
-                        principalColumn: "Id",
+                        name: "fk_organization_tag_organizations_organization_list_id",
+                        column: x => x.organization_list_id,
+                        principalTable: "organizations",
+                        principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_OrganizationTag_Tags_TagListId",
-                        column: x => x.TagListId,
-                        principalTable: "Tags",
-                        principalColumn: "Id",
+                        name: "fk_organization_tag_tags_tag_list_id",
+                        column: x => x.tag_list_id,
+                        principalTable: "tags",
+                        principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
-                table: "Organizations",
-                columns: new[] { "Id", "Description", "ImageUrl", "Title", "UserId" },
+                table: "organizations",
+                columns: new[] { "id", "description", "image_url", "title", "user_id" },
                 values: new object[,]
                 {
                     { 1, "UNICEF works in over 190 countries and territories to save children's lives, to defend their rights, and to help them fulfill their potential, from early childhood through adolescence.", "https://th.bing.com/th/id/R.7b5717ff47e176e9ac2a5580df80d6db?rik=N4afUMyWSF696Q&pid=ImgRaw&r=0", "UNICEF", 1 },
@@ -94,8 +94,8 @@ namespace HackDonations_Server.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "Tags",
-                columns: new[] { "Id", "Name" },
+                table: "tags",
+                columns: new[] { "id", "name" },
                 values: new object[,]
                 {
                     { 1, "Health and Medical" },
@@ -105,8 +105,8 @@ namespace HackDonations_Server.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "Users",
-                columns: new[] { "Id", "Bio", "Email", "ImageUrl", "Name", "PhoneNumber", "Uid" },
+                table: "users",
+                columns: new[] { "id", "bio", "email", "image_url", "name", "phone_number", "uid" },
                 values: new object[,]
                 {
                     { 1, "The greatest person you'll ever meet.", "riley@email.com", "https://th.bing.com/th/id/R.f08431063da214d8c07452cca215447f?rik=7gKQvCXgiLVQXw&pid=ImgRaw&r=0", "Riley Tullis", "123-456-7890", "" },
@@ -114,25 +114,25 @@ namespace HackDonations_Server.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrganizationTag_TagListId",
-                table: "OrganizationTag",
-                column: "TagListId");
+                name: "ix_organization_tag_tag_list_id",
+                table: "organization_tag",
+                column: "tag_list_id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "OrganizationTag");
+                name: "organization_tag");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "users");
 
             migrationBuilder.DropTable(
-                name: "Organizations");
+                name: "organizations");
 
             migrationBuilder.DropTable(
-                name: "Tags");
+                name: "tags");
         }
     }
 }
