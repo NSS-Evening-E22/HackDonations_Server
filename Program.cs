@@ -107,6 +107,20 @@ app.MapPut("/users/update/{userId}", (HackDonationsDbContext db, int userId, Use
 
 });
 
+// Check User
+app.MapGet("/users/{uid}", (HackDonationsDbContext db, string uid) =>
+{
+    var user = db.Users.Where(x => x.Uid == uid).ToList();
+    if (uid == null)
+    {
+        return Results.NotFound("Sorry, User not found!");
+    }
+    else
+    {
+        return Results.Ok(user);
+    }
+});
+
 #endregion
 
 #region Organization API
