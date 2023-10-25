@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HackDonations_Server.Migrations
 {
     [DbContext(typeof(HackDonationsDbContext))]
-    [Migration("20231025004502_HackDonations")]
+    [Migration("20231025012618_HackDonations")]
     partial class HackDonations
     {
         /// <inheritdoc />
@@ -28,28 +28,34 @@ namespace HackDonations_Server.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("description");
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("image_url");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("title");
 
                     b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_organizations");
 
-                    b.ToTable("Organizations");
+                    b.ToTable("organizations", (string)null);
 
                     b.HasData(
                         new
@@ -74,17 +80,20 @@ namespace HackDonations_Server.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("name");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_tags");
 
-                    b.ToTable("Tags");
+                    b.ToTable("tags", (string)null);
 
                     b.HasData(
                         new
@@ -113,37 +122,45 @@ namespace HackDonations_Server.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Bio")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("bio");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("email");
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("image_url");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("name");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("phone_number");
 
                     b.Property<string>("Uid")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("uid");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_users");
 
-                    b.ToTable("Users");
+                    b.ToTable("users", (string)null);
 
                     b.HasData(
                         new
@@ -171,16 +188,20 @@ namespace HackDonations_Server.Migrations
             modelBuilder.Entity("OrganizationTag", b =>
                 {
                     b.Property<int>("OrganizationListId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("organization_list_id");
 
                     b.Property<int>("TagListId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("tag_list_id");
 
-                    b.HasKey("OrganizationListId", "TagListId");
+                    b.HasKey("OrganizationListId", "TagListId")
+                        .HasName("pk_organization_tag");
 
-                    b.HasIndex("TagListId");
+                    b.HasIndex("TagListId")
+                        .HasDatabaseName("ix_organization_tag_tag_list_id");
 
-                    b.ToTable("OrganizationTag");
+                    b.ToTable("organization_tag", (string)null);
                 });
 
             modelBuilder.Entity("OrganizationTag", b =>
@@ -189,13 +210,15 @@ namespace HackDonations_Server.Migrations
                         .WithMany()
                         .HasForeignKey("OrganizationListId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_organization_tag_organizations_organization_list_id");
 
                     b.HasOne("HackDonations_Server.Models.Tag", null)
                         .WithMany()
                         .HasForeignKey("TagListId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_organization_tag_tags_tag_list_id");
                 });
 #pragma warning restore 612, 618
         }
