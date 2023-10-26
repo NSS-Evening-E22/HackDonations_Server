@@ -19,6 +19,11 @@ namespace HackDonations_Server.Models
         public string ImageUrl { get; set; }
 
         public string Uid { get; set; }
+
+        public List<Comment> CommentList { get; set; }
+
+        public List<Donation> DonationList { get; set; }
+        public List<Organization> OrganizationList { get; set; }
         
     }
 }

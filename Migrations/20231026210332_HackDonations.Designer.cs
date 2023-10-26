@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HackDonations_Server.Migrations
 {
     [DbContext(typeof(HackDonationsDbContext))]
-    [Migration("20231025012618_HackDonations")]
+    [Migration("20231026210332_HackDonations")]
     partial class HackDonations
     {
         /// <inheritdoc />
@@ -23,6 +23,107 @@ namespace HackDonations_Server.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("CommentOrganization", b =>
+                {
+                    b.Property<int>("CommentListId")
+                        .HasColumnType("integer")
+                        .HasColumnName("comment_list_id");
+
+                    b.Property<int>("OrganizationListId")
+                        .HasColumnType("integer")
+                        .HasColumnName("organization_list_id");
+
+                    b.HasKey("CommentListId", "OrganizationListId")
+                        .HasName("pk_comment_organization");
+
+                    b.HasIndex("OrganizationListId")
+                        .HasDatabaseName("ix_comment_organization_organization_list_id");
+
+                    b.ToTable("comment_organization", (string)null);
+                });
+
+            modelBuilder.Entity("DonationOrganization", b =>
+                {
+                    b.Property<int>("DonationListId")
+                        .HasColumnType("integer")
+                        .HasColumnName("donation_list_id");
+
+                    b.Property<int>("OrganizationListId")
+                        .HasColumnType("integer")
+                        .HasColumnName("organization_list_id");
+
+                    b.HasKey("DonationListId", "OrganizationListId")
+                        .HasName("pk_donation_organization");
+
+                    b.HasIndex("OrganizationListId")
+                        .HasDatabaseName("ix_donation_organization_organization_list_id");
+
+                    b.ToTable("donation_organization", (string)null);
+                });
+
+            modelBuilder.Entity("HackDonations_Server.Models.Comment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_comments");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_comments_user_id");
+
+                    b.ToTable("comments", (string)null);
+                });
+
+            modelBuilder.Entity("HackDonations_Server.Models.Donation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("comment");
+
+                    b.Property<int>("DonationAmount")
+                        .HasColumnType("integer")
+                        .HasColumnName("donation_amount");
+
+                    b.Property<string>("PaymentType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("payment_type");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_donations");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_donations_user_id");
+
+                    b.ToTable("donations", (string)null);
+                });
 
             modelBuilder.Entity("HackDonations_Server.Models.Organization", b =>
                 {
@@ -54,6 +155,9 @@ namespace HackDonations_Server.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_organizations");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_organizations_user_id");
 
                     b.ToTable("organizations", (string)null);
 
@@ -204,6 +308,70 @@ namespace HackDonations_Server.Migrations
                     b.ToTable("organization_tag", (string)null);
                 });
 
+            modelBuilder.Entity("CommentOrganization", b =>
+                {
+                    b.HasOne("HackDonations_Server.Models.Comment", null)
+                        .WithMany()
+                        .HasForeignKey("CommentListId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_comment_organization_comments_comment_list_id");
+
+                    b.HasOne("HackDonations_Server.Models.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationListId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_comment_organization_organizations_organization_list_id");
+                });
+
+            modelBuilder.Entity("DonationOrganization", b =>
+                {
+                    b.HasOne("HackDonations_Server.Models.Donation", null)
+                        .WithMany()
+                        .HasForeignKey("DonationListId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_donation_organization_donations_donation_list_id");
+
+                    b.HasOne("HackDonations_Server.Models.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationListId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_donation_organization_organizations_organization_list_id");
+                });
+
+            modelBuilder.Entity("HackDonations_Server.Models.Comment", b =>
+                {
+                    b.HasOne("HackDonations_Server.Models.User", null)
+                        .WithMany("CommentList")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_comments_users_user_id");
+                });
+
+            modelBuilder.Entity("HackDonations_Server.Models.Donation", b =>
+                {
+                    b.HasOne("HackDonations_Server.Models.User", null)
+                        .WithMany("DonationList")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_donations_users_user_id");
+                });
+
+            modelBuilder.Entity("HackDonations_Server.Models.Organization", b =>
+                {
+                    b.HasOne("HackDonations_Server.Models.User", null)
+                        .WithMany("OrganizationList")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_organizations_users_user_id");
+                });
+
             modelBuilder.Entity("OrganizationTag", b =>
                 {
                     b.HasOne("HackDonations_Server.Models.Organization", null)
@@ -219,6 +387,15 @@ namespace HackDonations_Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_organization_tag_tags_tag_list_id");
+                });
+
+            modelBuilder.Entity("HackDonations_Server.Models.User", b =>
+                {
+                    b.Navigation("CommentList");
+
+                    b.Navigation("DonationList");
+
+                    b.Navigation("OrganizationList");
                 });
 #pragma warning restore 612, 618
         }
