@@ -108,6 +108,12 @@ app.MapGet("/users/{uid}", (HackDonationsDbContext db, string uid) =>
     }
 });
 
+// Get User by Id
+app.MapGet("/users/return/{iden}", (HackDonationsDbContext db, int iden) =>
+{
+    return db.Users.FirstOrDefault(x => x.Id == iden);
+});
+
 // View All Users
 app.MapGet("/users", (HackDonationsDbContext db) => {
 
@@ -115,6 +121,24 @@ app.MapGet("/users", (HackDonationsDbContext db) => {
 
 });
 
+// Get User's Donations
+app.MapGet("/user/{userId}/donations", (HackDonationsDbContext db, int userId) => {
+
+    return db.Donations.Where(x => x.UserId == userId);
+});
+
+
+// Get User's Organizations
+app.MapGet("/user/{userId}/organizations", (HackDonationsDbContext db, int userId) => {
+
+    return db.Organizations.Where(x => x.UserId == userId);
+});
+
+// Get User's Comments
+app.MapGet("/user/{userId}/comments", (HackDonationsDbContext db, int userId) => {
+
+    return db.Comments.Where(x => x.UserId == userId);
+});
 #endregion
 
 #region Organization API
@@ -258,41 +282,10 @@ app.MapGet("/donations", (HackDonationsDbContext db) => {
 
 });
 
-// Create A Donation
-app.MapPost("/donations/new", (HackDonationsDbContext db, Donation payload) => {
-
-    db.Donations.Add(payload);
-    db.SaveChanges();
-    return Results.Created("/donations/new", payload);
-});
-
-// Get User's Donations
-app.MapGet("user/{userId}/donations", (HackDonationsDbContext db, int userId) => {
-
-    return db.Donations.Where(x => x.UserId == userId);
-});
-
-// Get Donations detail
+// Get Single Donation
 app.MapGet("/donations/{DonId}", (HackDonationsDbContext db, int DonId) =>
 {
     return db.Donations.Where(s => s.Id == DonId);
-});
-
-// Add Donation to Organization
-app.MapPost("/organizations/{OrgId}/donations", (HackDonationsDbContext db, int OrgId, Donation payload) =>
-{
-    // Retrieve object reference of Organizations in order to manipulate (Not a query result)
-    var organi = db.Organizations
-    .Where(o => o.Id == OrgId)
-    .Include(o => o.DonationList)
-    .FirstOrDefault();
-    if (organi == null)
-    {
-        return Results.NotFound("Organization not found.");
-    }
-    organi.DonationList.Add(payload);
-    db.SaveChanges();
-    return Results.Ok(organi);
 });
 
 // Get Donations from Organization
@@ -316,24 +309,42 @@ app.MapGet("/organizations/{OrgId}/donationlist", (HackDonationsDbContext db, in
     }
 });
 
-// Delete Donations from Organization
-app.MapDelete("/organizations/{OrgId}/{DonId}/remove/donation", (HackDonationsDbContext db, int OrgId, int DonId) =>
+
+// Add Donation to Organization
+app.MapPost("/organizations/{OrgId}/donations", (HackDonationsDbContext db, int OrgId, Donation payload) =>
+{
+    // Retrieve object reference of Organizations in order to manipulate (Not a query result)
+    var organi = db.Organizations
+    .Where(o => o.Id == OrgId)
+    .Include(o => o.DonationList)
+    .FirstOrDefault();
+    if (organi == null)
+    {
+        return Results.NotFound("Organization not found.");
+    }
+    organi.DonationList.Add(payload);
+    db.SaveChanges();
+    return Results.Ok(organi);
+});
+
+// Delete Donations
+app.MapDelete("/donations/{DonId}/remove", (HackDonationsDbContext db, int OrgId, int DonId) =>
 {
     try
     {
         // Include should come first before selecting
-        var SingleOrg = db.Organizations
-            .Include(Org => Org.DonationList)
-            .FirstOrDefault(x => x.Id == OrgId);
-        if (SingleOrg == null)
+        var SingleDon = db.Donations
+            .FirstOrDefault(x => x.Id == DonId);
+
+        if (SingleDon == null)
         {
             return Results.NotFound("Sorry for the inconvenience! This organization does not exist.");
         }
-        // The reason why it didn't work before is because I didnt have a method after TagList
-        var SelectedDonList = SingleOrg.DonationList.FirstOrDefault(d => d.Id == DonId);
-        SingleOrg.DonationList.Remove(SelectedDonList);
+        // The reason why it didn't work before is because I didnt have a method after ProductList
+        db.Donations.Remove(SingleDon);
+
         db.SaveChanges();
-        return Results.Ok(SingleOrg.DonationList);
+        return Results.Ok("Comment has been removed!");
     }
     catch (Exception ex)
     {
@@ -448,7 +459,3 @@ try
 #endregion
 
 app.Run();
-
-
-/* This adds a Comment to the Organiation's CommentList
- AND the Comment Table in the database. */
