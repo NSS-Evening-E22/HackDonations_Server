@@ -370,26 +370,7 @@ app.MapGet("/comments/{cId}", (HackDonationsDbContext db, int cId) => {
 
 });
 
-// Get Comments from Organization
-app.MapGet("/organizations/{OrgId}/comment", (HackDonationsDbContext db, int OrgId) =>
-{
-    try
-    {
-        var SingleOrg = db.Organizations
-            .Where(db => db.Id == OrgId)
-            .Include(Org => Org.CommentList)
-            .ToList();
-        if (SingleOrg == null)
-        {
-            return Results.NotFound("Sorry for the inconvenience! This Organization does not exist.");
-        }
-        return Results.Ok(SingleOrg);
-    }
-    catch (Exception ex)
-    {
-        return Results.Problem(ex.Message);
-    }
-});
+
 
 
 // Create A Comment
