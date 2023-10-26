@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http.Json;
 using HackDonations_Server;
 using EFCore.NamingConventions;
+using System.Security.Cryptography;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -141,7 +142,7 @@ app.MapPost("/organizations/new", (HackDonationsDbContext db, Organization paylo
 });
 
 // Update An Organization Page
-app.MapPut("/organizations/update/{OrgId}", (HackDonationsDbContext db, int OrgId, Organization payload) => {
+app.MapPut("/organizations/{OrgId}/update", (HackDonationsDbContext db, int OrgId, Organization payload) => {
 
     Organization SelectedOrg = db.Organizations.FirstOrDefault(o => o.Id == OrgId);
 
@@ -160,7 +161,7 @@ app.MapPut("/organizations/update/{OrgId}", (HackDonationsDbContext db, int OrgI
 });
 
 // Delete An Organization
-app.MapDelete("/organizations/remove/{OrgId}", (HackDonationsDbContext db, int OrgId) => {
+app.MapDelete("/organizations/{OrgId}/remove", (HackDonationsDbContext db, int OrgId) => {
 
     Organization SelectedOrg = db.Organizations.FirstOrDefault(o => o.Id == OrgId);
 
@@ -180,24 +181,29 @@ app.MapGet("/tags", (HackDonationsDbContext db) => {
 });
 
 // Add Tag to Organization
-app.MapPost("/organizations/{OrgId}/list", (HackDonationsDbContext db, int OrgId, Tag payload) =>
+app.MapPost("/organizations/{OrgId}/tags/new", (HackDonationsDbContext db, int OrgId, int tId) =>
 {
     // Retrieve object reference of Organizations in order to manipulate (Not a query result)
     var organi = db.Organizations
     .Where(o => o.Id == OrgId)
     .Include(o => o.TagList)
     .FirstOrDefault();
+
+    var SelectedTag = db.Tags
+    .Where(db => db.Id == tId)
+    .FirstOrDefault();
+
     if (organi == null)
     {
         return Results.NotFound("Organization not found.");
     }
-    organi.TagList.Add(payload);
+    organi.TagList.Add(SelectedTag);
     db.SaveChanges();
     return Results.Ok(organi);
 });
 
 // Delete Tags from Organization
-app.MapDelete("/organizations/{OrgId}/list/{TagId}/remove", (HackDonationsDbContext db, int OrgId, int TagId) =>
+app.MapDelete("/organizations/{OrgId}/tags/{TagId}/remove", (HackDonationsDbContext db, int OrgId, int TagId) =>
 {
     try
     {
@@ -353,19 +359,60 @@ app.MapGet("/comments/{cId}", (HackDonationsDbContext db, int cId) => {
 
 });
 
-// Create A Comment
-app.MapPost("/comments/new", (HackDonationsDbContext db, Comment payload) => {
+// Get Comments from Organization
+app.MapGet("/organizations/{OrgId}/comment", (HackDonationsDbContext db, int OrgId) =>
+{
+    try
+    {
+        var SingleOrg = db.Organizations
+            .Where(db => db.Id == OrgId)
+            .Include(Org => Org.CommentList)
+            .ToList();
+        if (SingleOrg == null)
+        {
+            return Results.NotFound("Sorry for the inconvenience! This Organization does not exist.");
+        }
+        return Results.Ok(SingleOrg);
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(ex.Message);
+    }
+});
 
-    db.Comments.Add(payload);
+
+// Create A Comment
+app.MapPost("/organizations/{OrgId}/comments/new", (HackDonationsDbContext db, int OrgId, Comment payload) =>
+{
+
+    // Retrieve object reference of Orders in order to manipulate (Not a query result)
+    var Org = db.Organizations
+    .Where(o => o.Id == OrgId)
+    .Include(o => o.CommentList)
+    .FirstOrDefault();
+
+    if (Org == null)
+    {
+        return Results.NotFound("Order not found.");
+    }
+
+    Org.CommentList.Add(payload);
+
     db.SaveChanges();
-    return Results.Created("/comments/new", payload);
+
+    return Results.Ok(Org);
 
 });
 
 // Update A Comment
-app.MapPut("/comments/update/{cId}", (HackDonationsDbContext db, int cId, Comment payload) => {
-
+app.MapPut("/comments/update/{cId}", (HackDonationsDbContext db, int OrgId, int cId, Comment payload) =>
+{
+    // Retrive the Organization page you're trying to retrieve a comment from.
     Comment SelectedCom = db.Comments.FirstOrDefault(o => o.Id == cId);
+    if (SelectedCom == null)
+    {
+        return Results.NotFound("Comment does not exist.");
+    }
 
     SelectedCom.Description = payload.Description;
 
@@ -375,17 +422,33 @@ app.MapPut("/comments/update/{cId}", (HackDonationsDbContext db, int cId, Commen
 });
 
 // Delete A Comment
-app.MapDelete("/comments/remove/{cId}", (HackDonationsDbContext db, int cId) => {
+app.MapDelete("/comments/{cId}/remove", (HackDonationsDbContext db, int cId) => {
 
-    Comment SelectedCom = db.Comments.FirstOrDefault(o => o.Id == cId);
+try
+{
+    // Include should come first before selecting
+    var SingleComm = db.Comments
+        .FirstOrDefault(x => x.Id == cId);
 
-    db.Comments.Remove(SelectedCom);
+    if (SingleComm == null)
+    {
+        return Results.NotFound("Sorry for the inconvenience! This organization does not exist.");
+    }
+    // The reason why it didn't work before is because I didnt have a method after ProductList
+    db.Comments.Remove(SingleComm);
+
     db.SaveChanges();
-    return Results.Ok("Comment has been removed.");
-
+    return Results.Ok("Comment has been removed!");
+}
+    catch (Exception ex)
+    {
+        return Results.Problem(ex.Message);
+    }
 });
-
-
 #endregion
 
 app.Run();
+
+
+/* This adds a Comment to the Organiation's CommentList
+ AND the Comment Table in the database. */
